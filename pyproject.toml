@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "textual-haystack"
-version = "0.1.0"
+version = "1.0.0"
 description = "Haystack integration for Tonic Textual PII detection, transformation, and entity extraction"
 license = { text = "MIT" }
 readme = "README.md"
