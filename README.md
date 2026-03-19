@@ -19,7 +19,7 @@ pip install textual-haystack
 | Component | Purpose |
 |-----------|---------|
 | `TonicTextualEntityExtractor` | Extract PII entities with type, value, location, and confidence score |
-| `TonicTextualDocumentCleaner` | Synthesize or tokenize PII in document content (coming soon) |
+| `TonicTextualDocumentCleaner` | Synthesize or tokenize PII in document content |
 
 ## Quick start
 
@@ -47,29 +47,58 @@ for entity in TonicTextualEntityExtractor.get_stored_annotations(result["documen
 # EMAIL_ADDRESS: john@example.com (confidence: 0.95)
 ```
 
+### Document cleaning
+
+```python
+from haystack.dataclasses import Document
+from haystack_integrations.components.tonic_textual import (
+    TonicTextualDocumentCleaner,
+)
+
+# Synthesize PII with realistic fakes
+cleaner = TonicTextualDocumentCleaner(generator_default="Synthesis")
+result = cleaner.run(
+    documents=[Document(content="Contact John Smith at john@example.com")]
+)
+print(result["documents"][0].content)
+# "Contact Maria Chen at maria.chen@gmail.com"
+```
+
+Per-entity control — mix synthesis and tokenization per PII type:
+
+```python
+cleaner = TonicTextualDocumentCleaner(
+    generator_default="Off",
+    generator_config={
+        "NAME_GIVEN": "Synthesis",
+        "NAME_FAMILY": "Synthesis",
+        "EMAIL_ADDRESS": "Redaction",
+    },
+)
+```
+
 ### In a pipeline
 
 ```python
 from haystack import Pipeline
 from haystack.dataclasses import Document
 from haystack_integrations.components.tonic_textual import (
+    TonicTextualDocumentCleaner,
     TonicTextualEntityExtractor,
 )
 
 pipeline = Pipeline()
+pipeline.add_component("cleaner", TonicTextualDocumentCleaner(generator_default="Synthesis"))
 pipeline.add_component("extractor", TonicTextualEntityExtractor())
+pipeline.connect("cleaner", "extractor")
 
 result = pipeline.run({
-    "extractor": {
+    "cleaner": {
         "documents": [
             Document(content="Contact Jane Doe at jane@example.com"),
         ]
     }
 })
-
-for doc in result["extractor"]["documents"]:
-    entities = TonicTextualEntityExtractor.get_stored_annotations(doc)
-    print(f"Found {len(entities)} entities")
 ```
 
 ## Configuration

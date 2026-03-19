@@ -1,0 +1,12 @@
+[project]
+name = "textual-haystack-document-cleaner-example"
+version = "0.1.0"
+description = "Example: PII document cleaning with Tonic Textual and Haystack"
+requires-python = ">=3.10.0,<4.0.0"
+dependencies = [
+    "textual-haystack",
+    "haystack-ai",
+]
+
+[tool.uv.sources]
+textual-haystack = { path = "../.." }

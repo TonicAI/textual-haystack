@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 from haystack.dataclasses import Document
@@ -107,9 +108,9 @@ def test_skip_none_content() -> None:
     docs = [Document(content=None)]
     result = extractor.run(documents=docs)
     assert len(result["documents"]) == 1
-    assert TonicTextualEntityExtractor.get_stored_annotations(
-        result["documents"][0]
-    ) == []
+    assert (
+        TonicTextualEntityExtractor.get_stored_annotations(result["documents"][0]) == []
+    )
     extractor._client.redact.assert_not_called()
 
 
@@ -171,15 +172,15 @@ def test_multiple_documents() -> None:
     result = extractor.run(documents=docs)
     assert len(result["documents"]) == 2
     assert (
-        TonicTextualEntityExtractor.get_stored_annotations(
-            result["documents"][0]
-        )[0].entity
+        TonicTextualEntityExtractor.get_stored_annotations(result["documents"][0])[
+            0
+        ].entity
         == "NAME_GIVEN"
     )
     assert (
-        TonicTextualEntityExtractor.get_stored_annotations(
-            result["documents"][1]
-        )[0].entity
+        TonicTextualEntityExtractor.get_stored_annotations(result["documents"][1])[
+            0
+        ].entity
         == "EMAIL_ADDRESS"
     )
 
@@ -199,9 +200,9 @@ def test_api_error_returns_empty_annotations() -> None:
     assert annotations == []
 
 
-def test_serialization_round_trip() -> None:
+def test_serialization_round_trip(monkeypatch: Any) -> None:
+    monkeypatch.setenv("TONIC_TEXTUAL_API_KEY", "test-key")
     extractor = TonicTextualEntityExtractor(
-        api_key=Secret.from_token("test-key"),
         base_url="https://textual.example.com",
     )
     data = extractor.to_dict()
@@ -217,9 +218,7 @@ def test_warm_up_only_once() -> None:
     with patch(
         "haystack_integrations.components.tonic_textual.entity_extractor.TextualNer"
     ) as mock_ner:
-        extractor = TonicTextualEntityExtractor(
-            api_key=Secret.from_token("fake-key")
-        )
+        extractor = TonicTextualEntityExtractor(api_key=Secret.from_token("fake-key"))
         extractor.warm_up()
         extractor.warm_up()
         mock_ner.assert_called_once()

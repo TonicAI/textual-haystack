@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import logging
-import os
 from dataclasses import dataclass, replace
 from typing import Any
 
 from haystack import component, default_from_dict, default_to_dict
 from haystack.dataclasses import Document
 from haystack.utils.auth import Secret
-
 from tonic_textual.redact_api import TextualNer  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
