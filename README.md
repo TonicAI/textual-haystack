@@ -127,6 +127,10 @@ extractor = TonicTextualEntityExtractor(
 # install dependencies
 uv sync --group dev --group test --group lint --group typing
 
+# install pre-commit hooks (auto-runs ruff on each commit)
+uv tool install pre-commit
+pre-commit install
+
 # run unit tests
 make test
 
